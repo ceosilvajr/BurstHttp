@@ -448,7 +448,7 @@ public class BurstClient {
                 mBurstFileCallBack.onFinish();
                 return;
             }
-            Log.d(TAG, "File Size" + result.getTotalSpace() + " File name " + result.getName());
+            Log.d(TAG, "File Size " + result.getTotalSpace() + " File name " + result.getName());
             mBurstFileCallBack.onSuccess(result);
             mBurstFileCallBack.onFinish();
         }
