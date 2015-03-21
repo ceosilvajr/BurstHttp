@@ -10,6 +10,7 @@ import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.async.http.body.FilePart;
 import com.koushikdutta.async.http.body.Part;
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.ProgressCallback;
 import com.koushikdutta.ion.Response;
 
 import java.io.File;
@@ -35,16 +36,29 @@ public class BurstClient {
 
     private Context mContext;
     private BurstCallback mBurstCallback;
+    private BurstFileCallBack mBurstFileCallBack;
 
     // Authorization headers
     private boolean mIsAuthorizationEnabled = false;
     private String mApiKey = "";
     private String mAuthorizationKey = "Authorization";
     private Future<Response<JsonObject>> mIonRequest;
+    private Future<File> mIonFileRequest;
 
     public BurstClient(Context context) {
         mContext = context;
         internetChecker = new InternetChecker(context);
+    }
+
+    public void setAuthorization(String apiKey) {
+        mApiKey = apiKey;
+        mIsAuthorizationEnabled = true;
+    }
+
+    public void setAuthorization(String apiKey, String key) {
+        mApiKey = apiKey;
+        mAuthorizationKey = key;
+        mIsAuthorizationEnabled = true;
     }
 
     public void get(String url, HashMap<String, String> params,
@@ -54,7 +68,7 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        if (internetChecker.isConnected()) {
+        if (!internetChecker.isConnected()) {
             Log.e(TAG, "The device is not connected to the internet");
             mBurstCallback.onFinish();
             mBurstCallback.onError(BurstError.noInternetConnection());
@@ -90,7 +104,7 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        if (internetChecker.isConnected()) {
+        if (!internetChecker.isConnected()) {
             Log.e(TAG, "The device is not connected to the internet");
             mBurstCallback.onFinish();
             mBurstCallback.onError(BurstError.noInternetConnection());
@@ -139,7 +153,7 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        if (internetChecker.isConnected()) {
+        if (!internetChecker.isConnected()) {
             Log.e(TAG, "The device is not connected to the internet");
             mBurstCallback.onFinish();
             mBurstCallback.onError(BurstError.noInternetConnection());
@@ -183,7 +197,7 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        if (internetChecker.isConnected()) {
+        if (!internetChecker.isConnected()) {
             Log.e(TAG, "The device is not connected to the internet");
             mBurstCallback.onFinish();
             mBurstCallback.onError(BurstError.noInternetConnection());
@@ -215,7 +229,7 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        if (internetChecker.isConnected()) {
+        if (!internetChecker.isConnected()) {
             Log.e(TAG, "The device is not connected to the internet");
             mBurstCallback.onFinish();
             mBurstCallback.onError(BurstError.noInternetConnection());
@@ -246,7 +260,7 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        if (internetChecker.isConnected()) {
+        if (!internetChecker.isConnected()) {
             Log.e(TAG, "The device is not connected to the internet");
             mBurstCallback.onFinish();
             mBurstCallback.onError(BurstError.noInternetConnection());
@@ -278,7 +292,7 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        if (internetChecker.isConnected()) {
+        if (!internetChecker.isConnected()) {
             Log.e(TAG, "The device is not connected to the internet");
             mBurstCallback.onFinish();
             mBurstCallback.onError(BurstError.noInternetConnection());
@@ -303,15 +317,50 @@ public class BurstClient {
         }
     }
 
-    public void setAuthorization(String apiKey) {
-        mApiKey = apiKey;
-        mIsAuthorizationEnabled = true;
-    }
+    public void downloadFile(String url, final File zipFile, BurstFileCallBack burstFileCallBack) {
 
-    public void setAuthorization(String apiKey, String key) {
-        mApiKey = apiKey;
-        mAuthorizationKey = key;
-        mIsAuthorizationEnabled = true;
+        mBurstFileCallBack = burstFileCallBack;
+
+        mBurstFileCallBack.onStart();
+
+        if (!internetChecker.isConnected()) {
+            Log.e(TAG, "The device is not connected to the internet");
+            mBurstFileCallBack.onFinish();
+            mBurstFileCallBack.onError(BurstError.noInternetConnection());
+            return;
+        }
+
+        // Let's validate the url
+        if (!isUrlValid(url)) {
+            return;
+        }
+
+        Log.i(TAG, "DOWNLOAD FILE " + url);
+
+        if (mIsAuthorizationEnabled) {
+            mIonFileRequest = Ion.with(mContext).load(url)
+                    .setHeader(mAuthorizationKey, mApiKey).setTimeout(TIMEOUT)
+                    .progress(new ProgressCallback() {
+                        @Override
+                        public void onProgress(long downloaded,
+                                               long total) {
+                            mBurstFileCallBack.onProgress(downloaded, total);
+                        }
+                    }).write(zipFile)
+                    .setCallback(new FileFutureCallback());
+        } else {
+            mIonFileRequest = Ion.with(mContext).load(url)
+                    .setHeader(mAuthorizationKey, mApiKey).setTimeout(TIMEOUT)
+                    .progress(new ProgressCallback() {
+                        @Override
+                        public void onProgress(long downloaded,
+                                               long total) {
+                            mBurstFileCallBack.onProgress(downloaded, total);
+                        }
+                    }).write(zipFile)
+                    .setCallback(new FileFutureCallback());
+        }
+
     }
 
     private String getQueryString(HashMap<String, String> params) {
@@ -379,6 +428,30 @@ public class BurstClient {
             mBurstCallback.onFinish();
         }
 
+    }
+
+    private class FileFutureCallback implements FutureCallback<File> {
+
+        @Override
+        public void onCompleted(Exception e, File result) {
+            if (e != null) {
+                Log.e(TAG, "Error: " + e.getMessage());
+                BurstError burstError = new BurstError();
+                burstError.setMessage(e.getMessage());
+                burstError.setCode("ION-EXCEPTION");
+                mBurstFileCallBack.onError(burstError);
+                mBurstFileCallBack.onFinish();
+                return;
+            }
+            if (result == null) {
+                mBurstFileCallBack.onError(BurstError.failedToDownloadFile());
+                mBurstFileCallBack.onFinish();
+                return;
+            }
+            Log.d(TAG, "File Size" + result.getTotalSpace() + " File name " + result.getName());
+            mBurstFileCallBack.onSuccess(result);
+            mBurstFileCallBack.onFinish();
+        }
     }
 
 

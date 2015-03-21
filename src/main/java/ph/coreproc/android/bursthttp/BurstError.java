@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.koushikdutta.ion.Response;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
@@ -84,6 +85,14 @@ public class BurstError {
 		burstError.code = "INVALID-URL";
 		return burstError;
 	}
+
+    public static BurstError failedToDownloadFile() {
+        BurstError burstError = new BurstError();
+        burstError.httpCode = BurstError.URL_INVALID;
+        burstError.message = "Failed to download file";
+        burstError.code = "FILE-ERROR";
+        return burstError;
+    }
 
 	public String getCode() {
 		return code;

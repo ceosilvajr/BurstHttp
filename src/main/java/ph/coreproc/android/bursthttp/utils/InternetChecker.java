@@ -16,13 +16,17 @@ public class InternetChecker {
     }
 
     public boolean isConnected() {
-        try {
-            ConnectivityManager cm = (ConnectivityManager) context
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        } catch (NullPointerException e) {
-            return false;
+        ConnectivityManager connectivity = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null) {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null) {
+                for (int i = 0; i < info.length; i++)
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                }
+            }
         }
+        return false;
     }
 }

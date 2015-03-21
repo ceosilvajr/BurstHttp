@@ -9,11 +9,13 @@ import com.koushikdutta.ion.Response;
  * @author chrisbjr
  */
 public interface BurstCallback {
+
     public void onStart();
 
-    public void onFinish();
+    public void onSuccess(Response<JsonObject> response);
 
     public void onError(BurstError burstError);
 
-    public void onSuccess(Response<JsonObject> response);
+    public void onFinish();
+
 }
