@@ -8,6 +8,8 @@ import android.util.Log;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.async.http.body.FilePart;
+import com.koushikdutta.async.http.body.Part;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
 
@@ -15,6 +17,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -71,6 +74,48 @@ public class BurstClient {
                     .withResponse().setCallback(new GenericFutureCallback());
         }
 
+    }
+
+    public void postWithFile(String url, HashMap<String, String> params, HashMap<String, File> files,
+                             BurstCallback burstCallback) {
+
+        mBurstCallback = burstCallback;
+
+        mBurstCallback.onStart();
+
+        // Let's validate
+        if (!validate(url)) {
+            return;
+        }
+
+        Log.i(TAG, "POST " + url);
+
+        Map<String, List<String>> newParams = new HashMap<>();
+        if (params != null) {
+            for (ConcurrentHashMap.Entry<String, String> entry : params
+                    .entrySet()) {
+                newParams.put(entry.getKey(), Arrays.asList(entry.getValue()));
+            }
+        }
+
+        List<Part> data = new ArrayList<>();
+
+        for (String s : files.keySet()) {
+            if (files.get(s) != null) {
+                FilePart filePart = new FilePart(s, files.get(s));
+                data.add(filePart);
+            }
+        }
+        if (mIsAuthorizationEnabled) {
+            mIonRequest = Ion.with(mContext).load(url).setHeader(mAuthorizationKey, mApiKey)
+                    .setTimeout(TIMEOUT).setMultipartParameters(newParams).addMultipartParts(data)
+                    .asJsonObject().withResponse()
+                    .setCallback(new GenericFutureCallback());
+        } else {
+            mIonRequest = Ion.with(mContext).load(url).setTimeout(TIMEOUT)
+                    .setMultipartParameters(newParams).asJsonObject().withResponse()
+                    .setCallback(new GenericFutureCallback());
+        }
     }
 
     public void post(String url, HashMap<String, String> params,
