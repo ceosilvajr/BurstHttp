@@ -1,9 +1,8 @@
 package ph.coreproc.android.bursthttp;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
+import android.webkit.URLUtil;
 
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.Future;
@@ -14,8 +13,6 @@ import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ph.coreproc.android.bursthttp.utils.InternetChecker;
+
 /**
  * Created by chrisbjr on 10/1/14.
  */
@@ -31,6 +30,8 @@ public class BurstClient {
 
     private static final String TAG = "HttpClient";
     private static final int TIMEOUT = 100000;
+
+    private InternetChecker internetChecker;
 
     private Context mContext;
     private BurstCallback mBurstCallback;
@@ -43,6 +44,7 @@ public class BurstClient {
 
     public BurstClient(Context context) {
         mContext = context;
+        internetChecker = new InternetChecker(context);
     }
 
     public void get(String url, HashMap<String, String> params,
@@ -52,19 +54,24 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        // Build the URL
+        if (internetChecker.isConnected()) {
+            Log.e(TAG, "The device is not connected to the internet");
+            mBurstCallback.onFinish();
+            mBurstCallback.onError(BurstError.noInternetConnection());
+            return;
+        }
+
         if (params != null) {
             url += "?" + getQueryString(params);
         }
 
-        // Let's validate
-        if (!validate(url)) {
+        // Let's validate the url
+        if (!isUrlValid(url)) {
             return;
         }
 
         Log.i(TAG, "GET " + url);
 
-        // Now we can get it
         if (mIsAuthorizationEnabled) {
             mIonRequest = Ion.with(mContext).load(url).setHeader(mAuthorizationKey, mApiKey)
                     .setTimeout(TIMEOUT).asJsonObject().withResponse()
@@ -83,8 +90,15 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        // Let's validate
-        if (!validate(url)) {
+        if (internetChecker.isConnected()) {
+            Log.e(TAG, "The device is not connected to the internet");
+            mBurstCallback.onFinish();
+            mBurstCallback.onError(BurstError.noInternetConnection());
+            return;
+        }
+
+        // Let's validate the url
+        if (!isUrlValid(url)) {
             return;
         }
 
@@ -125,8 +139,15 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        // Let's validate
-        if (!validate(url)) {
+        if (internetChecker.isConnected()) {
+            Log.e(TAG, "The device is not connected to the internet");
+            mBurstCallback.onFinish();
+            mBurstCallback.onError(BurstError.noInternetConnection());
+            return;
+        }
+
+        // Let's validate the url
+        if (!isUrlValid(url)) {
             return;
         }
 
@@ -162,8 +183,15 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        // Let's validate
-        if (!validate(url)) {
+        if (internetChecker.isConnected()) {
+            Log.e(TAG, "The device is not connected to the internet");
+            mBurstCallback.onFinish();
+            mBurstCallback.onError(BurstError.noInternetConnection());
+            return;
+        }
+
+        // Let's validate the url
+        if (!isUrlValid(url)) {
             return;
         }
 
@@ -187,8 +215,15 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        // Let's validate
-        if (!validate(url)) {
+        if (internetChecker.isConnected()) {
+            Log.e(TAG, "The device is not connected to the internet");
+            mBurstCallback.onFinish();
+            mBurstCallback.onError(BurstError.noInternetConnection());
+            return;
+        }
+
+        // Let's validate the url
+        if (!isUrlValid(url)) {
             return;
         }
 
@@ -204,24 +239,6 @@ public class BurstClient {
         }
     }
 
-    public void uploadRecording(HashMap<String, String> params, File file,
-                                BurstCallback burstCallback) {
-
-        mBurstCallback = burstCallback;
-
-        mBurstCallback.onStart();
-
-        String url = "http://api.pinoykaraokestar.com/v1/recordings";
-
-        mIonRequest = Ion.with(mContext).load(url).setHeader(mAuthorizationKey, mApiKey)
-                .setTimeout(TIMEOUT)
-                .setMultipartParameter("song_id", params.get("song_id"))
-                .setMultipartParameter("score", params.get("score"))
-                .setMultipartFile("recording", file).asJsonObject()
-                .withResponse().setCallback(new GenericFutureCallback());
-
-    }
-
     public void put(String url, JsonObject params,
                     BurstCallback burstCallback) {
 
@@ -229,8 +246,15 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        // Let's validate
-        if (!validate(url)) {
+        if (internetChecker.isConnected()) {
+            Log.e(TAG, "The device is not connected to the internet");
+            mBurstCallback.onFinish();
+            mBurstCallback.onError(BurstError.noInternetConnection());
+            return;
+        }
+
+        // Let's validate the url
+        if (!isUrlValid(url)) {
             return;
         }
 
@@ -254,8 +278,15 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        // Let's validate
-        if (!validate(url)) {
+        if (internetChecker.isConnected()) {
+            Log.e(TAG, "The device is not connected to the internet");
+            mBurstCallback.onFinish();
+            mBurstCallback.onError(BurstError.noInternetConnection());
+            return;
+        }
+
+        // Let's validate the url
+        if (!isUrlValid(url)) {
             return;
         }
 
@@ -283,38 +314,6 @@ public class BurstClient {
         mIsAuthorizationEnabled = true;
     }
 
-    private boolean validate(String url) {
-        if (!isConnected()) {
-            Log.e(TAG, "The device is not connected to the internet");
-            mBurstCallback.onFinish();
-            mBurstCallback.onError(BurstError.noInternetConnection());
-            return false;
-        }
-
-        // Validate url
-        if (!isUrlValid(url)) {
-            Log.e(TAG, "The URL provided is invalid");
-            mBurstCallback.onFinish();
-            mBurstCallback.onError(BurstError.invalidUrl());
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean isConnected() {
-        try {
-            ConnectivityManager cm = (ConnectivityManager) mContext
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            return activeNetwork != null
-                    && activeNetwork.isConnectedOrConnecting();
-        } catch (NullPointerException e) {
-            // nothing
-        }
-        return true;
-    }
-
     private String getQueryString(HashMap<String, String> params) {
         StringBuilder result = new StringBuilder();
         for (ConcurrentHashMap.Entry<String, String> entry : params.entrySet()) {
@@ -330,10 +329,10 @@ public class BurstClient {
     }
 
     private boolean isUrlValid(String url) {
-        try {
-            URL assignUrl = new URL(url);
-        } catch (MalformedURLException e) {
+        if (!URLUtil.isValidUrl(url)) {
             Log.e(TAG, "Invalid URL: " + url);
+            mBurstCallback.onFinish();
+            mBurstCallback.onError(BurstError.invalidUrl());
             return false;
         }
         return true;
@@ -381,6 +380,7 @@ public class BurstClient {
         }
 
     }
+
 
     public void cancel() {
         mIonRequest.cancel();
