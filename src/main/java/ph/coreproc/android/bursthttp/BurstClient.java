@@ -41,18 +41,13 @@ public class BurstClient {
     // Authorization headers
     private boolean mIsAuthorizationEnabled = false;
     private String mApiKey = "";
-    private String mAuthorizationKey = "Authorization";
+    private String mAuthorizationKey = "";
     private Future<Response<JsonObject>> mIonRequest;
     private Future<File> mIonFileRequest;
 
     public BurstClient(Context context) {
         mContext = context;
         internetChecker = new InternetChecker(context);
-    }
-
-    public void setAuthorization(String apiKey) {
-        mApiKey = apiKey;
-        mIsAuthorizationEnabled = true;
     }
 
     public void setAuthorization(String apiKey, String key) {
