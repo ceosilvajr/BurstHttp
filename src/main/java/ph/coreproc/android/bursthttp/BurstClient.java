@@ -3,6 +3,7 @@ package ph.coreproc.android.bursthttp;
 import android.content.Context;
 import android.util.Log;
 import android.webkit.URLUtil;
+import android.widget.ImageView;
 
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.Future;
@@ -29,7 +30,7 @@ import ph.coreproc.android.bursthttp.utils.InternetChecker;
  */
 public class BurstClient {
 
-    private static final String TAG = "HttpClient";
+    private static final String TAG = "BurstClient";
     private static final int TIMEOUT = 100000;
 
     private InternetChecker internetChecker;
@@ -54,6 +55,11 @@ public class BurstClient {
         mApiKey = apiKey;
         mAuthorizationKey = key;
         mIsAuthorizationEnabled = true;
+    }
+
+    public void loadImage(String url, ImageView imageView, int drawableId) {
+        Ion.with(mContext).load(url).withBitmap().placeholder(drawableId)
+                .intoImageView(imageView);
     }
 
     public void get(String url, HashMap<String, String> params,
