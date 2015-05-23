@@ -1,6 +1,8 @@
 package ph.coreproc.android.bursthttp;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 import android.webkit.URLUtil;
 
@@ -22,23 +24,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import ph.coreproc.android.bursthttp.utils.InternetChecker;
-
 /**
  * Created by chrisbjr on 10/1/14.
  */
 public class BurstClient {
 
-    private static final String TAG = "HttpClient";
+    private static final String TAG = "BurstClient";
     private static final int TIMEOUT = 100000;
-
-    private InternetChecker internetChecker;
 
     private Context mContext;
     private BurstCallback mBurstCallback;
     private BurstFileCallBack mBurstFileCallBack;
 
-    // Authorization headers
     private boolean mIsAuthorizationEnabled = false;
     private String mApiKey = "";
     private String mAuthorizationKey = "";
@@ -47,7 +44,6 @@ public class BurstClient {
 
     public BurstClient(Context context) {
         mContext = context;
-        internetChecker = new InternetChecker(context);
     }
 
     public void setAuthorization(String apiKey, String key) {
@@ -56,17 +52,12 @@ public class BurstClient {
         mIsAuthorizationEnabled = true;
     }
 
-    public void get(String url, HashMap<String, String> params,
-                    BurstCallback burstCallback) {
+    public void get(String url, HashMap<String, String> params, BurstCallback burstCallback) {
 
         mBurstCallback = burstCallback;
-
         mBurstCallback.onStart();
 
-        if (!internetChecker.isConnected()) {
-            Log.e(TAG, "The device is not connected to the internet");
-            mBurstCallback.onFinish();
-            mBurstCallback.onError(BurstError.noInternetConnection());
+        if (!isConnectedToInternet()) {
             return;
         }
 
@@ -96,13 +87,9 @@ public class BurstClient {
                              BurstCallback burstCallback) {
 
         mBurstCallback = burstCallback;
-
         mBurstCallback.onStart();
 
-        if (!internetChecker.isConnected()) {
-            Log.e(TAG, "The device is not connected to the internet");
-            mBurstCallback.onFinish();
-            mBurstCallback.onError(BurstError.noInternetConnection());
+        if (!isConnectedToInternet()) {
             return;
         }
 
@@ -145,13 +132,9 @@ public class BurstClient {
                      BurstCallback burstCallback) {
 
         mBurstCallback = burstCallback;
-
         mBurstCallback.onStart();
 
-        if (!internetChecker.isConnected()) {
-            Log.e(TAG, "The device is not connected to the internet");
-            mBurstCallback.onFinish();
-            mBurstCallback.onError(BurstError.noInternetConnection());
+        if (!isConnectedToInternet()) {
             return;
         }
 
@@ -185,17 +168,12 @@ public class BurstClient {
 
     }
 
-    public void post(String url, JsonObject params,
-                     BurstCallback burstCallback) {
+    public void post(String url, JsonObject params, BurstCallback burstCallback) {
 
         mBurstCallback = burstCallback;
-
         mBurstCallback.onStart();
 
-        if (!internetChecker.isConnected()) {
-            Log.e(TAG, "The device is not connected to the internet");
-            mBurstCallback.onFinish();
-            mBurstCallback.onError(BurstError.noInternetConnection());
+        if (!isConnectedToInternet()) {
             return;
         }
 
@@ -224,10 +202,7 @@ public class BurstClient {
 
         mBurstCallback.onStart();
 
-        if (!internetChecker.isConnected()) {
-            Log.e(TAG, "The device is not connected to the internet");
-            mBurstCallback.onFinish();
-            mBurstCallback.onError(BurstError.noInternetConnection());
+        if (!isConnectedToInternet()) {
             return;
         }
 
@@ -248,17 +223,12 @@ public class BurstClient {
         }
     }
 
-    public void put(String url, JsonObject params,
-                    BurstCallback burstCallback) {
+    public void put(String url, JsonObject params, BurstCallback burstCallback) {
 
         mBurstCallback = burstCallback;
-
         mBurstCallback.onStart();
 
-        if (!internetChecker.isConnected()) {
-            Log.e(TAG, "The device is not connected to the internet");
-            mBurstCallback.onFinish();
-            mBurstCallback.onError(BurstError.noInternetConnection());
+        if (!isConnectedToInternet()) {
             return;
         }
 
@@ -284,13 +254,9 @@ public class BurstClient {
     public void delete(String url, BurstCallback burstCallback) {
 
         mBurstCallback = burstCallback;
-
         mBurstCallback.onStart();
 
-        if (!internetChecker.isConnected()) {
-            Log.e(TAG, "The device is not connected to the internet");
-            mBurstCallback.onFinish();
-            mBurstCallback.onError(BurstError.noInternetConnection());
+        if (!isConnectedToInternet()) {
             return;
         }
 
@@ -315,13 +281,9 @@ public class BurstClient {
     public void downloadFile(String url, final File zipFile, BurstFileCallBack burstFileCallBack) {
 
         mBurstFileCallBack = burstFileCallBack;
-
         mBurstFileCallBack.onStart();
 
-        if (!internetChecker.isConnected()) {
-            Log.e(TAG, "The device is not connected to the internet");
-            mBurstFileCallBack.onFinish();
-            mBurstFileCallBack.onError(BurstError.noInternetConnection());
+        if (!isConnectedToInternet()) {
             return;
         }
 
@@ -382,6 +344,24 @@ public class BurstClient {
         return true;
     }
 
+    private boolean isConnectedToInternet() {
+        ConnectivityManager connectivity = (ConnectivityManager)
+                mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null) {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null) {
+                for (int i = 0; i < info.length; i++)
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+            }
+        }
+        Log.e(TAG, "The device is not connected to the internet");
+        mBurstCallback.onFinish();
+        mBurstCallback.onError(BurstError.noInternetConnection());
+        return false;
+    }
+
     private class GenericFutureCallback implements
             FutureCallback<Response<JsonObject>> {
 
@@ -425,6 +405,7 @@ public class BurstClient {
 
     }
 
+
     private class FileFutureCallback implements FutureCallback<File> {
 
         @Override
@@ -448,7 +429,6 @@ public class BurstClient {
             mBurstFileCallBack.onFinish();
         }
     }
-
 
     public void cancel() {
         mIonRequest.cancel();
