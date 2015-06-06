@@ -83,51 +83,6 @@ public class BurstClient {
 
     }
 
-    public void postWithFile(String url, HashMap<String, String> params, HashMap<String, File> files,
-                             BurstCallback burstCallback) {
-
-        mBurstCallback = burstCallback;
-        mBurstCallback.onStart();
-
-        if (!isConnectedToInternet()) {
-            return;
-        }
-
-        // Let's validate the url
-        if (!isUrlValid(url)) {
-            return;
-        }
-
-        Log.i(TAG, "POST " + url);
-
-        Map<String, List<String>> newParams = new HashMap<>();
-        if (params != null) {
-            for (ConcurrentHashMap.Entry<String, String> entry : params
-                    .entrySet()) {
-                newParams.put(entry.getKey(), Arrays.asList(entry.getValue()));
-            }
-        }
-
-        List<Part> data = new ArrayList<>();
-
-        for (String s : files.keySet()) {
-            if (files.get(s) != null) {
-                FilePart filePart = new FilePart(s, files.get(s));
-                data.add(filePart);
-            }
-        }
-        if (mIsAuthorizationEnabled) {
-            mIonRequest = Ion.with(mContext).load(url).setHeader(mAuthorizationKey, mApiKey)
-                    .setTimeout(TIMEOUT).setMultipartParameters(newParams).addMultipartParts(data)
-                    .asJsonObject().withResponse()
-                    .setCallback(new GenericFutureCallback());
-        } else {
-            mIonRequest = Ion.with(mContext).load(url).setTimeout(TIMEOUT)
-                    .setMultipartParameters(newParams).asJsonObject().withResponse()
-                    .setCallback(new GenericFutureCallback());
-        }
-    }
-
     public void post(String url, HashMap<String, String> params,
                      BurstCallback burstCallback) {
 
@@ -318,6 +273,51 @@ public class BurstClient {
                     .setCallback(new FileFutureCallback());
         }
 
+    }
+
+    public void uploadFile(String url, HashMap<String, String> params, HashMap<String, File> files,
+                             BurstCallback burstCallback) {
+
+        mBurstCallback = burstCallback;
+        mBurstCallback.onStart();
+
+        if (!isConnectedToInternet()) {
+            return;
+        }
+
+        // Let's validate the url
+        if (!isUrlValid(url)) {
+            return;
+        }
+
+        Log.i(TAG, "POST " + url);
+
+        Map<String, List<String>> newParams = new HashMap<>();
+        if (params != null) {
+            for (ConcurrentHashMap.Entry<String, String> entry : params
+                    .entrySet()) {
+                newParams.put(entry.getKey(), Arrays.asList(entry.getValue()));
+            }
+        }
+
+        List<Part> data = new ArrayList<>();
+
+        for (String s : files.keySet()) {
+            if (files.get(s) != null) {
+                FilePart filePart = new FilePart(s, files.get(s));
+                data.add(filePart);
+            }
+        }
+        if (mIsAuthorizationEnabled) {
+            mIonRequest = Ion.with(mContext).load(url).setHeader(mAuthorizationKey, mApiKey)
+                    .setTimeout(TIMEOUT).setMultipartParameters(newParams).addMultipartParts(data)
+                    .asJsonObject().withResponse()
+                    .setCallback(new GenericFutureCallback());
+        } else {
+            mIonRequest = Ion.with(mContext).load(url).setTimeout(TIMEOUT)
+                    .setMultipartParameters(newParams).asJsonObject().withResponse()
+                    .setCallback(new GenericFutureCallback());
+        }
     }
 
     private String getQueryString(HashMap<String, String> params) {
