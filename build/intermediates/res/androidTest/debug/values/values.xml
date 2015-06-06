@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/ceosilvajr/Dropbox%20(Q11%20Technologies)/Development/android_projects/rsmaintenance/RSMaintenance/BurstHttp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
+    <!-- From: file:/Users/ceosilvajr/Documents/Development/android-projects/Hatchpoint/hatchTV/BurstHttp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
     <eat-comment/>
     <attr format="reference" name="drawerArrowStyle"/>
     <attr format="dimension" name="height"/>
@@ -153,10 +153,10 @@
     <string name="abc_shareactionprovider_share_with">Share with</string>
     <string name="abc_shareactionprovider_share_with_application">Share with %s</string>
     <string name="abc_toolbar_collapse_description">Collapse</string>
-    <!-- From: file:/Users/ceosilvajr/Dropbox%20(Q11%20Technologies)/Development/android_projects/rsmaintenance/RSMaintenance/BurstHttp/build/intermediates/bundles/debug/res/values/values.xml -->
+    <!-- From: file:/Users/ceosilvajr/Documents/Development/android-projects/Hatchpoint/hatchTV/BurstHttp/build/intermediates/bundles/debug/res/values/values.xml -->
     <eat-comment/>
     <string name="app_name">BurstHttp</string>
-    <!-- From: file:/Users/ceosilvajr/Dropbox%20(Q11%20Technologies)/Development/android_projects/rsmaintenance/RSMaintenance/BurstHttp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
+    <!-- From: file:/Users/ceosilvajr/Documents/Development/android-projects/Hatchpoint/hatchTV/BurstHttp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
     <eat-comment/>
     <style name="Base.TextAppearance.AppCompat" parent="android:TextAppearance">
         <item name="android:textColor">?android:textColorPrimary</item>
