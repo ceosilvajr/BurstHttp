@@ -254,8 +254,7 @@ public class BurstClient {
                     .setHeader(mAuthorizationKey, mApiKey).setTimeout(TIMEOUT)
                     .progress(new ProgressCallback() {
                         @Override
-                        public void onProgress(long downloaded,
-                                               long total) {
+                        public void onProgress(long downloaded, long total) {
                             mBurstFileCallBack.onProgress(downloaded, total);
                         }
                     }).write(zipFile)
@@ -276,7 +275,7 @@ public class BurstClient {
     }
 
     public void uploadFile(String url, HashMap<String, String> params, HashMap<String, File> files,
-                             BurstCallback burstCallback) {
+                           BurstCallback burstCallback) {
 
         mBurstCallback = burstCallback;
         mBurstCallback.onStart();
