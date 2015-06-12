@@ -17,4 +17,4 @@
            android:interpolator="@android:anim/decelerate_interpolator"
            android:fromYDelta="50%p" android:toYDelta="0"
            android:duration="@android:integer/config_mediumAnimTime"/>
-<!-- From: file:/Users/ceosilvajr/Documents/Development/android-projects/q11-technologies/q11-gps-assist-android/customer-app/BurstHttp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/anim/abc_slide_in_bottom.xml -->
+<!-- From: file:/Users/ceosilvajr/Documents/Development/android-projects/q11-technologies/q11-gps-assist-android/driver-app/BurstHttp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/anim/abc_slide_in_bottom.xml -->

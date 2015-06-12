@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/ceosilvajr/Documents/Development/android-projects/q11-technologies/q11-gps-assist-android/customer-app/BurstHttp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values-w500dp/values.xml -->
+    <!-- From: file:/Users/ceosilvajr/Documents/Development/android-projects/q11-technologies/q11-gps-assist-android/driver-app/BurstHttp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values-w500dp/values.xml -->
     <eat-comment/>
     <integer name="abc_max_action_buttons">4</integer>
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/ceosilvajr/Documents/Development/android-projects/q11-technologies/q11-gps-assist-android/customer-app/BurstHttp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values-v14/values.xml -->
+    <!-- From: file:/Users/ceosilvajr/Documents/Development/android-projects/q11-technologies/q11-gps-assist-android/driver-app/BurstHttp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values-v14/values.xml -->
     <eat-comment/>
     <style name="Base.Theme.AppCompat" parent="Base.V14.Theme.AppCompat">
         <item name="android:actionModeCutDrawable">?actionModeCutDrawable</item>
