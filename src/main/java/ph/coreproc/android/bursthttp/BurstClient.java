@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 import android.webkit.URLUtil;
+import android.widget.ImageView;
 
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.Future;
@@ -361,6 +362,7 @@ public class BurstClient {
         return false;
     }
 
+
     private class GenericFutureCallback implements
             FutureCallback<Response<JsonObject>> {
 
@@ -404,7 +406,6 @@ public class BurstClient {
 
     }
 
-
     private class FileFutureCallback implements FutureCallback<File> {
 
         @Override
@@ -432,5 +433,4 @@ public class BurstClient {
     public void cancel() {
         mIonRequest.cancel();
     }
-
 }
